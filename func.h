@@ -8,11 +8,11 @@
 #include "myStructs.h"
 #include "MFCApplication1Dlg.h"
 
-/////////////////////////////////////////////[my fuction]//////////////////////////////////////////////
 pcap_if_t* initCap();
 int startCap(CMFCApplication1Dlg* dlg);
-int updateTree(int index);
-int updateEdit(int index);
+int updateTree(int index, CMFCApplication1Dlg* dlg);
+int updateEdit(int index, CMFCApplication1Dlg* dlg);
+void print_packet_hex(const u_char* pkt, int size_pkt, CString* buf);
 int updateNPacket(CMFCApplication1Dlg* dlg);
 DWORD WINAPI capThread(LPVOID lpParameter);
 int analyze_frame(const u_char* pkt, struct datapkt* data, struct pktcount* npacket);

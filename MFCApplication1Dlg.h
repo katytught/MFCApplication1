@@ -52,8 +52,6 @@ public:
 	CEdit m_icmpv6Edit;
 	CEdit m_othersEdit;
 	CEdit m_totalEdit;
-//	CButton m_saveBut;
-//	CButton m_loadBut;
 	afx_msg void OnSelchangeNet();
 	afx_msg void OnSelchangeFunc();
 	afx_msg void OnClickedButtonStart();
@@ -69,4 +67,5 @@ public:
 	char errbuf[PCAP_ERRBUF_SIZE];
 	HANDLE m_ThreadHandle;
 	afx_msg void OnClickedButtonStop();
+	afx_msg void OnItemchangedPacket(NMHDR* pNMHDR, LRESULT* pResult);
 };

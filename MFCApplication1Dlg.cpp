@@ -89,6 +89,7 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO3, &CMFCApplication1Dlg::OnSelchangeFunc)
 	ON_BN_CLICKED(IDC_BUTTON2,&CMFCApplication1Dlg::OnClickedButtonStart)
 	ON_BN_CLICKED(IDC_BUTTON1, &CMFCApplication1Dlg::OnClickedButtonStop)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST2, &CMFCApplication1Dlg::OnItemchangedPacket)
 END_MESSAGE_MAP()
 
 
@@ -126,8 +127,8 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	m_listCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 
-	m_listCtrl.InsertColumn(0, _T("编号"), 3, 100);                        //1表示右，2表示中，3表示左
-	m_listCtrl.InsertColumn(1, _T("时间"), 3, 100);
+	m_listCtrl.InsertColumn(0, _T("编号"), 3, 100);                        
+	m_listCtrl.InsertColumn(1, _T("时间"), 3, 250);
 	m_listCtrl.InsertColumn(2, _T("长度"), 3, 100);
 	m_listCtrl.InsertColumn(3, _T("源MAC地址"), 3, 225);
 	m_listCtrl.InsertColumn(4, _T("目的MAC地址"), 3, 350);
@@ -147,13 +148,13 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	{
 		if (dev->description)
 			devCount++;
-			m_selectNetCom.AddString(CString(dev->description));  //////////////////////////////Problem 1字符集问题
+			m_selectNetCom.AddString(CString(dev->description));  
 	}
 	CString str_count;
 	str_count.Format(_T("%d"), devCount);
 	m_selectNetCom.AddString(_T("共检测到"+CString(str_count)+"个设备，请选择"));
 
-	m_selectFuncCom.AddString(_T("选择协议"));
+	m_selectFuncCom.AddString(_T("选择筛选规则"));
 	m_selectFuncCom.AddString(_T("tcp"));
 	m_selectFuncCom.AddString(_T("udp"));
 	m_selectFuncCom.AddString(_T("ip"));
@@ -253,4 +254,30 @@ void CMFCApplication1Dlg::OnClickedButtonStart()
 void CMFCApplication1Dlg::OnClickedButtonStop()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	if (NULL == this->m_ThreadHandle)
+		return;
+	if (TerminateThread(this->m_ThreadHandle, -1) == 0)
+	{
+		MessageBox(_T("关闭线程错误，请稍后重试"));
+		return;
+	}
+	this->m_ThreadHandle = NULL;
+	this->m_startBut.EnableWindow(TRUE);
+	this->m_stopBut.EnableWindow(FALSE);
+}
+
+
+void CMFCApplication1Dlg::OnItemchangedPacket(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	int index;
+	index = this->m_listCtrl.GetHotItem();
+
+	if (index > this->m_localDataList.GetCount() - 1)
+		return;
+
+	updateEdit(index,this);
+	updateTree(index,this);
+	*pResult = 0;
 }
