@@ -7,10 +7,13 @@
 #include "MFCApplication1.h"
 #include "MFCApplication1Dlg.h"
 #include "afxdialogex.h"
+#include"func.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#include <pcap.h>
+using namespace std;
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -59,12 +62,33 @@ CMFCApplication1Dlg::CMFCApplication1Dlg(CWnd* pParent /*=nullptr*/)
 void CMFCApplication1Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_COMBO2, m_selectNetCom);
+	DDX_Control(pDX, IDC_COMBO3, m_selectFuncCom);
+	DDX_Control(pDX, IDC_BUTTON2, m_startBut);
+	DDX_Control(pDX, IDC_BUTTON1, m_stopBut);
+	DDX_Control(pDX, IDC_TREE1, m_treeCtrl);
+	DDX_Control(pDX, IDC_EDIT3, m_edit);
+	DDX_Control(pDX, IDC_EDIT4, m_tcpEdit);
+	DDX_Control(pDX, IDC_EDIT6, m_httpEdit);
+	DDX_Control(pDX, IDC_EDIT12, m_ipv6Edit);
+	DDX_Control(pDX, IDC_EDIT7, m_udpEdit);
+	DDX_Control(pDX, IDC_EDIT8, m_arpEdit);
+	DDX_Control(pDX, IDC_EDIT9, m_ipv4Edit);
+	DDX_Control(pDX, IDC_EDIT10, m_icmpEdit);
+	DDX_Control(pDX, IDC_EDIT14, m_icmpv6Edit);
+	DDX_Control(pDX, IDC_EDIT13, m_othersEdit);
+	DDX_Control(pDX, IDC_EDIT11, m_totalEdit);
+	DDX_Control(pDX, IDC_LIST2, m_listCtrl);
 }
 
 BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_CBN_SELCHANGE(IDC_COMBO2, &CMFCApplication1Dlg::OnSelchangeNet)
+	ON_CBN_SELCHANGE(IDC_COMBO3, &CMFCApplication1Dlg::OnSelchangeFunc)
+	ON_BN_CLICKED(IDC_BUTTON2,&CMFCApplication1Dlg::OnClickedButtonStart)
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFCApplication1Dlg::OnClickedButtonStop)
 END_MESSAGE_MAP()
 
 
@@ -100,6 +124,47 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	m_listCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+
+	m_listCtrl.InsertColumn(0, _T("编号"), 3, 100);                        //1表示右，2表示中，3表示左
+	m_listCtrl.InsertColumn(1, _T("时间"), 3, 100);
+	m_listCtrl.InsertColumn(2, _T("长度"), 3, 100);
+	m_listCtrl.InsertColumn(3, _T("源MAC地址"), 3, 225);
+	m_listCtrl.InsertColumn(4, _T("目的MAC地址"), 3, 350);
+	m_listCtrl.InsertColumn(5, _T("协议"), 3, 100);
+	m_listCtrl.InsertColumn(6, _T("源IP地址"), 3, 200);
+	m_listCtrl.InsertColumn(7, _T("目的IP地址"), 3, 250);
+	
+	
+	alldev = initCap();
+
+	if (alldev == NULL)
+		return FALSE;
+
+	int devCount = 0;
+	
+	for (dev = alldev; dev; dev = dev->next)
+	{
+		if (dev->description)
+			devCount++;
+			m_selectNetCom.AddString(CString(dev->description));  //////////////////////////////Problem 1字符集问题
+	}
+	CString str_count;
+	str_count.Format(_T("%d"), devCount);
+	m_selectNetCom.AddString(_T("共检测到"+CString(str_count)+"个设备，请选择"));
+
+	m_selectFuncCom.AddString(_T("选择协议"));
+	m_selectFuncCom.AddString(_T("tcp"));
+	m_selectFuncCom.AddString(_T("udp"));
+	m_selectFuncCom.AddString(_T("ip"));
+	m_selectFuncCom.AddString(_T("icmp"));
+	m_selectFuncCom.AddString(_T("arp"));
+
+
+	m_selectNetCom.SetCurSel(m_selectNetCom.GetCount()-1);
+	m_selectFuncCom.SetCurSel(0);
+
+	m_stopBut.EnableWindow(FALSE);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -153,3 +218,39 @@ HCURSOR CMFCApplication1Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFCApplication1Dlg::OnSelchangeNet()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CMFCApplication1Dlg::OnSelchangeFunc()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CMFCApplication1Dlg::OnClickedButtonStart()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	this->npkt = 1;													
+	this->m_localDataList.RemoveAll();				
+	this->m_netDataList.RemoveAll();
+	memset(&(this->npacket), 0, sizeof(struct pktcount));
+	updateNPacket(this);
+
+	if (startCap(this) < 0)
+		return;
+	this->m_listCtrl.DeleteAllItems();
+	this->m_treeCtrl.DeleteAllItems();
+	this->m_edit.SetWindowTextW(_T(""));
+	this->m_startBut.EnableWindow(FALSE);
+	this->m_stopBut.EnableWindow(TRUE);
+}
+
+void CMFCApplication1Dlg::OnClickedButtonStop()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}

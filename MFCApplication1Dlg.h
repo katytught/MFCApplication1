@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#include"myStructs.h"
+#include"pcap.h"
 
 
 // CMFCApplication1Dlg 对话框
@@ -34,4 +36,37 @@ protected:
 public:
 	afx_msg void OnEnChangeEdit5();
 	afx_msg void OnEnChangeEdit10();
+	CComboBox m_selectNetCom;
+	CComboBox m_selectFuncCom;
+	CButton m_startBut;
+	CButton m_stopBut;
+	CTreeCtrl m_treeCtrl;
+	CEdit m_edit;
+	CEdit m_tcpEdit;
+	CEdit m_httpEdit;
+	CEdit m_ipv6Edit;
+	CEdit m_udpEdit;
+	CEdit m_arpEdit;
+	CEdit m_ipv4Edit;
+	CEdit m_icmpEdit;
+	CEdit m_icmpv6Edit;
+	CEdit m_othersEdit;
+	CEdit m_totalEdit;
+//	CButton m_saveBut;
+//	CButton m_loadBut;
+	afx_msg void OnSelchangeNet();
+	afx_msg void OnSelchangeFunc();
+	afx_msg void OnClickedButtonStart();
+	CListCtrl m_listCtrl;
+
+	int npkt;
+	CPtrList m_localDataList;
+	CPtrList m_netDataList;
+	struct pktcount npacket;
+	pcap_if_t* dev;
+	pcap_if_t* alldev;
+	pcap_t* pkt;
+	char errbuf[PCAP_ERRBUF_SIZE];
+	HANDLE m_ThreadHandle;
+	afx_msg void OnClickedButtonStop();
 };
