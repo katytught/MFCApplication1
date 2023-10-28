@@ -84,8 +84,6 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_CBN_SELCHANGE(IDC_COMBO2, &CMFCApplication1Dlg::OnSelchangeNet)
-	ON_CBN_SELCHANGE(IDC_COMBO3, &CMFCApplication1Dlg::OnSelchangeFunc)
 	ON_BN_CLICKED(IDC_BUTTON2,&CMFCApplication1Dlg::OnClickedButtonStart)
 	ON_BN_CLICKED(IDC_BUTTON1, &CMFCApplication1Dlg::OnClickedButtonStop)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST2, &CMFCApplication1Dlg::OnItemchangedPacket)
@@ -218,20 +216,6 @@ HCURSOR CMFCApplication1Dlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
-
-
-
-void CMFCApplication1Dlg::OnSelchangeNet()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-
-void CMFCApplication1Dlg::OnSelchangeFunc()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
 
 void CMFCApplication1Dlg::OnClickedButtonStart()
 {

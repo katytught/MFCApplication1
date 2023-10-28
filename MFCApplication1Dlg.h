@@ -51,11 +51,8 @@ public:
 	CEdit m_icmpEdit;
 	CEdit m_icmpv6Edit;
 	CEdit m_totalEdit;
-	afx_msg void OnSelchangeNet();
-	afx_msg void OnSelchangeFunc();
 	afx_msg void OnClickedButtonStart();
 	CListCtrl m_listCtrl;
-
 	int npkt;
 	CPtrList m_localDataList;
 	CPtrList m_netDataList;
