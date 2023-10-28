@@ -16,7 +16,9 @@ int analyze_tcp(const u_char* pkt, datapkt* data, struct
 int analyze_udp(const u_char* pkt, datapkt* data, struct pktcount* npacket);
 
 
-void print_packet_hex(const u_char* pkt, int size_pkt, CString* buf) {
+CString print_packet_hex(const u_char* pkt, int size_pkt) {
+	
+	CString buf;
 	int i = 0, j = 0, rowcount;
 	u_char ch;
 
@@ -25,28 +27,28 @@ void print_packet_hex(const u_char* pkt, int size_pkt, CString* buf) {
 
 	for (i = 0; i < size_pkt; i += 16)
 	{
-		buf->AppendFormat(_T("%04x:  "), (u_int)i);
+		buf.AppendFormat(_T("%04x:  "), (u_int)i);
 		rowcount = (size_pkt - i) > 16 ? 16 : (size_pkt - i);
 
 		for (j = 0; j < rowcount; j++)
-			buf->AppendFormat(_T("%02x  "), (u_int)pkt[i + j]);
+			buf.AppendFormat(_T("%02x  "), (u_int)pkt[i + j]);
 
 		if (rowcount < 16)
 			for (j = rowcount; j < 16; j++)
-				buf->AppendFormat(_T("    "));
+				buf.AppendFormat(_T("    "));
 
 
 		for (j = 0; j < rowcount; j++)
 		{
 			ch = pkt[i + j];
 			ch = isprint(ch) ? ch : '.';
-			buf->AppendFormat(_T("%c"), ch);
+			buf.AppendFormat(_T("%c"), ch);
 		}
 
-		buf->Append(_T("\r\n"));
+		buf.Append(_T("\r\n"));
 
 		if (rowcount < 16)
-			return;
+			return buf;
 	}
 }
 
@@ -88,9 +90,6 @@ int updateNPacket(CMFCApplication1Dlg* dlg) {
 
 	str_num.Format(_T("%d"), dlg->npacket.ipv6);
 	dlg->m_ipv6Edit.SetWindowTextW(str_num);
-
-	str_num.Format(_T("%d"), dlg->npacket.others);
-	dlg->m_othersEdit.SetWindowTextW(str_num);
 
 	str_num.Format(_T("%d"), dlg->npacket.total);
 	dlg->m_totalEdit.SetWindowTextW(str_num);
@@ -149,7 +148,6 @@ int analyze_ip(const u_char* pkt, datapkt* data, struct pktcount* npacket) {
 	data->iph->ttl = iph->ttl;
 	data->iph->ihl = iph->ihl;
 	data->iph->version = iph->version;
-	//data->iph->ver_ihl= iph->ver_ihl;
 	data->iph->op_pad = iph->op_pad;
 
 	int iplen = iph->ihl * 4;							
@@ -334,11 +332,11 @@ int analyze_frame(const u_char* pkt, struct datapkt* data, struct pktcount* npac
 		break;
 	case 0x86dd:
 		return analyze_ip6((u_char*)pkt + 14, data, npacket);
-		return -1;
+		//return -1;
 		break;
 	default:
 		npacket->total++;
-		return -1;
+		//return -1;
 		break;
 	}
 	return 1;
@@ -368,15 +366,7 @@ DWORD WINAPI capThread(LPVOID lpParameter) {
 		struct datapkt* data = (struct datapkt*)malloc(sizeof(struct datapkt));
 		memset(data, 0, sizeof(struct datapkt));
 
-		if (NULL == data)
-		{
-			MessageBox(NULL, _T("空间已满，无法接收新的数据包"), _T("Error"), MB_OK);
-			return -1;
-		}
-
-		if (analyze_frame(pkt_data, data, &(pthis->npacket)) < 0)
-			continue;
-
+		analyze_frame(pkt_data, data, &(pthis->npacket));
 		updateNPacket(pthis);
 
 		ppkt_data = (u_char*)malloc(header->len);
@@ -519,7 +509,7 @@ int startCap(CMFCApplication1Dlg* dlg) {
 
 	if (0 == filter_index)
 	{
-		char filter[] = "";
+		char filter[] = "tcp or udp or icmp or icmp6";
 		if (pcap_compile(dlg->pkt, &fcode, filter, 1, netmask) < 0)
 		{
 			MessageBox(NULL, _T("语法错误"), _T("提示"), MB_OK);
@@ -556,14 +546,6 @@ int startCap(CMFCApplication1Dlg* dlg) {
 
 	LPDWORD threadCap = NULL;
 	dlg->m_ThreadHandle = CreateThread(NULL, 0, capThread, dlg, 0, threadCap);
-	if (dlg->m_ThreadHandle == NULL)
-	{
-		int code = GetLastError();
-		CString str;
-		str.Format(_T("%d."), code);
-		MessageBox(NULL, _T("创建线程错误，代码为"+CString(str)), _T("提示"), MB_OK);
-		return -1;
-	}
 	return 1;
 }
 
@@ -893,9 +875,7 @@ int updateEdit(int index, CMFCApplication1Dlg* dlg) {
 	struct datapkt* local_data = (struct datapkt*)(dlg->m_localDataList.GetAt(localpos));
 	u_char* net_data = (u_char*)(dlg->m_netDataList.GetAt(netpos));
 
-	CString buf;
-	print_packet_hex(net_data, local_data->len, &buf);
-	dlg->m_edit.SetWindowText(buf);
+	dlg->m_edit.SetWindowText(print_packet_hex(net_data, local_data->len));
 
 	return 1;
 }

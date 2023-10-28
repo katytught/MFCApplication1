@@ -18,7 +18,6 @@ typedef struct pktcount {
 	int icmpv6;
 	int ipv4;
 	int ipv6;
-	int others;
 	int total;
 };
 

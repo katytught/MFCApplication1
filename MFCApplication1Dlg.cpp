@@ -76,7 +76,6 @@ void CMFCApplication1Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT9, m_ipv4Edit);
 	DDX_Control(pDX, IDC_EDIT10, m_icmpEdit);
 	DDX_Control(pDX, IDC_EDIT14, m_icmpv6Edit);
-	DDX_Control(pDX, IDC_EDIT13, m_othersEdit);
 	DDX_Control(pDX, IDC_EDIT11, m_totalEdit);
 	DDX_Control(pDX, IDC_LIST2, m_listCtrl);
 }

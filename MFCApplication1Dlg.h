@@ -50,7 +50,6 @@ public:
 	CEdit m_ipv4Edit;
 	CEdit m_icmpEdit;
 	CEdit m_icmpv6Edit;
-	CEdit m_othersEdit;
 	CEdit m_totalEdit;
 	afx_msg void OnSelchangeNet();
 	afx_msg void OnSelchangeFunc();
