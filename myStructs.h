@@ -6,8 +6,8 @@
 #define PROTO_ICMP 1
 #define PROTO_TCP 6					
 #define PROTO_UDP 17					 
-#define LITTLE_ENDIAN 1234
-#define BIG_ENDIAN    4321
+//#define LITTLE_ENDIAN 1234
+//#define BIG_ENDIAN    4321
 
 typedef struct pktcount {
 	int tcp;
@@ -43,13 +43,13 @@ typedef struct arphdr
 
 typedef struct iphdr
 {
-#if defined(LITTLE_ENDIAN)
+//#if defined(LITTLE_ENDIAN)
 	u_char ihl : 4;
 	u_char version : 4;
-#elif defined(BIG_ENDIAN)
-	u_char version : 4;
-	u_char  ihl : 4;
-#endif
+//#elif defined(BIG_ENDIAN)
+//	u_char version : 4;
+//	u_char  ihl : 4;
+//#endif
 	u_char tos;				
 	u_short tlen;			
 	u_short id;				
@@ -68,7 +68,7 @@ typedef struct tcphdr
 	u_short dport;							
 	u_int seq;									
 	u_int ack_seq;							
-#if defined(LITTLE_ENDIAN)
+//#if defined(LITTLE_ENDIAN)
 	u_short res1 : 4,
 		doff : 4,
 		fin : 1,
@@ -79,8 +79,8 @@ typedef struct tcphdr
 		urg : 1,
 		ece : 1,
 		cwr : 1;
-#elif defined(BIG_ENDIAN)
-	u_short doff : 4,
+//#elif defined(BIG_ENDIAN)
+/*	u_short doff : 4,
 		res1 : 4,
 		cwr : 1,
 		ece : 1,
@@ -90,7 +90,7 @@ typedef struct tcphdr
 		rst : 1,
 		syn : 1,
 		fin : 1;
-#endif
+#endif*/
 	u_short window;					
 	u_short check;						
 	u_short urg_ptr;					
@@ -115,7 +115,7 @@ typedef struct icmphdr
 
 typedef struct iphdr6
 {
-    u_int  flowid:20,flowtype:8,version:4;				
+    u_int  version:4,flowtype : 8, flowid : 20;
 	u_short plen;					
 	u_char nh;						
 	u_char hlim;					
@@ -123,12 +123,10 @@ typedef struct iphdr6
 	u_short daddr[8];			
 };
 
-//∂®“ÂICMPv6
 typedef struct icmphdr6
 {
 	u_char type;			
-	u_char code;			
-	u_char seq;			
+	u_char code;					
 	u_char chksum;		
 	u_char op_type;	
 	u_char op_len;		

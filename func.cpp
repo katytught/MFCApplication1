@@ -236,7 +236,7 @@ int analyze_icmp6(const u_char* pkt, datapkt* data, struct pktcount* npacket) {
 
 	data->icmph6->chksum = icmph6->chksum;
 	data->icmph6->code = icmph6->code;
-	data->icmph6->seq = icmph6->seq;
+//	data->icmph6->seq = icmph6->seq;
 	data->icmph6->type = icmph6->type;
 	data->icmph6->op_len = icmph6->op_len;
 	data->icmph6->op_type = icmph6->op_type;
@@ -366,7 +366,8 @@ DWORD WINAPI capThread(LPVOID lpParameter) {
 		struct datapkt* data = (struct datapkt*)malloc(sizeof(struct datapkt));
 		memset(data, 0, sizeof(struct datapkt));
 
-		analyze_frame(pkt_data, data, &(pthis->npacket));
+		if (analyze_frame(pkt_data, data, &(pthis->npacket)) < 0)
+			continue;
 		updateNPacket(pthis);
 
 		ppkt_data = (u_char*)malloc(header->len);
@@ -705,7 +706,7 @@ int updateTree(int index, CMFCApplication1Dlg* dlg) {
 			dlg->m_treeCtrl.InsertItem(str, tcp);
 			str.Format(_T("  头部长度:%d"), local_data->tcph->doff);
 
-			HTREEITEM flag = dlg->m_treeCtrl.InsertItem(_T(" +标志位"), tcp);
+			HTREEITEM flag = dlg->m_treeCtrl.InsertItem(_T(" 标志位"), tcp);
 
 			str.Format(_T("cwr %d"), local_data->tcph->cwr);
 			dlg->m_treeCtrl.InsertItem(str, flag);
@@ -724,11 +725,11 @@ int updateTree(int index, CMFCApplication1Dlg* dlg) {
 			str.Format(_T("fin %d"), local_data->tcph->fin);
 			dlg->m_treeCtrl.InsertItem(str, flag);
 
-			str.Format(_T("  紧急指针:%d"), local_data->tcph->urg_ptr);
+			str.Format(_T("紧急指针:%d"), local_data->tcph->urg_ptr);
 			dlg->m_treeCtrl.InsertItem(str, tcp);
-			str.Format(_T("  校验和:0x%02x"), local_data->tcph->check);
+			str.Format(_T("校验和:0x%02x"), local_data->tcph->check);
 			dlg->m_treeCtrl.InsertItem(str, tcp);
-			str.Format(_T("  选项:%d"), local_data->tcph->opt);
+			str.Format(_T("选项:%d"), local_data->tcph->opt);
 			dlg->m_treeCtrl.InsertItem(str, tcp);
 		}
 		else if (17 == local_data->iph->proto) {				
@@ -751,7 +752,6 @@ int updateTree(int index, CMFCApplication1Dlg* dlg) {
 		dlg->m_treeCtrl.InsertItem(str, ip6);
 		str.Format(_T("流类型:%d"), local_data->iph6->version);
 		dlg->m_treeCtrl.InsertItem(str, ip6);
-
 		str.Format(_T("流标签:%d"), local_data->iph6->flowid);
 		dlg->m_treeCtrl.InsertItem(str, ip6);
 		str.Format(_T("有效载荷长度:%d"), local_data->iph6->plen);
@@ -790,8 +790,8 @@ int updateTree(int index, CMFCApplication1Dlg* dlg) {
 			dlg->m_treeCtrl.InsertItem(str, icmp6);
 			str.Format(_T("代码:%d"), local_data->icmph6->code);
 			dlg->m_treeCtrl.InsertItem(str, icmp6);
-			str.Format(_T("序号:%d"), local_data->icmph6->seq);
-			dlg->m_treeCtrl.InsertItem(str, icmp6);
+			//str.Format(_T("序号:%d"), local_data->icmph6->seq);
+			//dlg->m_treeCtrl.InsertItem(str, icmp6);
 			str.Format(_T("校验和:%d"), local_data->icmph6->chksum);
 			dlg->m_treeCtrl.InsertItem(str, icmp6);
 			str.Format(_T("选项-类型:%d"), local_data->icmph6->op_type);
@@ -810,19 +810,19 @@ int updateTree(int index, CMFCApplication1Dlg* dlg) {
 			dlg->m_treeCtrl.InsertItem(str, icmp6);
 
 		}
-		else if (0x06 == local_data->iph6->nh) {				//TCP
+		else if (0x06 == local_data->iph6->nh) {				
 
 			HTREEITEM tcp = dlg->m_treeCtrl.InsertItem(_T("TCP协议头"), data);
 
-			str.Format(_T("  源端口:%d"), local_data->tcph->sport);
+			str.Format(_T("源端口:%d"), local_data->tcph->sport);
 			dlg->m_treeCtrl.InsertItem(str, tcp);
-			str.Format(_T("  目的端口:%d"), local_data->tcph->dport);
+			str.Format(_T("目的端口:%d"), local_data->tcph->dport);
 			dlg->m_treeCtrl.InsertItem(str, tcp);
-			str.Format(_T("  序列号:0x%02x"), local_data->tcph->seq);
+			str.Format(_T("序列号:0x%02x"), local_data->tcph->seq);
 			dlg->m_treeCtrl.InsertItem(str, tcp);
-			str.Format(_T("  确认号:%d"), local_data->tcph->ack_seq);
+			str.Format(_T("确认号:%d"), local_data->tcph->ack_seq);
 			dlg->m_treeCtrl.InsertItem(str, tcp);
-			str.Format(_T("  头部长度:%d"), local_data->tcph->doff);
+			str.Format(_T("头部长度:%d"), local_data->tcph->doff);
 
 			HTREEITEM flag = dlg->m_treeCtrl.InsertItem(_T("标志位"), tcp);
 
@@ -843,11 +843,11 @@ int updateTree(int index, CMFCApplication1Dlg* dlg) {
 			str.Format(_T("fin %d"), local_data->tcph->fin);
 			dlg->m_treeCtrl.InsertItem(str, flag);
 
-			str.Format(_T("  紧急指针:%d"), local_data->tcph->urg_ptr);
+			str.Format(_T("紧急指针:%d"), local_data->tcph->urg_ptr);
 			dlg->m_treeCtrl.InsertItem(str, tcp);
-			str.Format(_T("  校验和:0x%02x"), local_data->tcph->check);
+			str.Format(_T("校验和:0x%02x"), local_data->tcph->check);
 			dlg->m_treeCtrl.InsertItem(str, tcp);
-			str.Format(_T("  选项:%d"), local_data->tcph->opt);
+			str.Format(_T("选项:%d"), local_data->tcph->opt);
 			dlg->m_treeCtrl.InsertItem(str, tcp);
 		}
 		else if (0x11 == local_data->iph6->nh) {				

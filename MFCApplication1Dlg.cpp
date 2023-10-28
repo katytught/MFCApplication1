@@ -159,6 +159,7 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	m_selectFuncCom.AddString(_T("ip"));
 	m_selectFuncCom.AddString(_T("icmp"));
 	m_selectFuncCom.AddString(_T("arp"));
+	m_selectFuncCom.AddString(_T("icmp6"));
 
 
 	m_selectNetCom.SetCurSel(m_selectNetCom.GetCount()-1);
