@@ -236,7 +236,6 @@ int analyze_icmp6(const u_char* pkt, datapkt* data, struct pktcount* npacket) {
 
 	data->icmph6->chksum = icmph6->chksum;
 	data->icmph6->code = icmph6->code;
-//	data->icmph6->seq = icmph6->seq;
 	data->icmph6->type = icmph6->type;
 	data->icmph6->op_len = icmph6->op_len;
 	data->icmph6->op_type = icmph6->op_type;
@@ -332,11 +331,9 @@ int analyze_frame(const u_char* pkt, struct datapkt* data, struct pktcount* npac
 		break;
 	case 0x86dd:
 		return analyze_ip6((u_char*)pkt + 14, data, npacket);
-		//return -1;
 		break;
 	default:
 		npacket->total++;
-		//return -1;
 		break;
 	}
 	return 1;
