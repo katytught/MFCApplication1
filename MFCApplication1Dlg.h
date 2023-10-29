@@ -34,8 +34,6 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnEnChangeEdit5();
-	afx_msg void OnEnChangeEdit10();
 	CComboBox m_selectNetCom;
 	CComboBox m_selectFuncCom;
 	CButton m_startBut;
